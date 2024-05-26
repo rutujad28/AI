@@ -1409,6 +1409,194 @@ class Solution {
 
 
 
+//Eight Puzzle using Best First Search
+import java.util.*;
+
+class PuzzleState implements Comparable<PuzzleState> {
+    int[][] board;
+    int emptyRow, emptyCol;
+    int gCost, hCost;
+    PuzzleState parent;
+
+    public PuzzleState(int[][] board, int gCost, PuzzleState parent) {
+        this.board = board;
+        this.gCost = gCost;
+        this.parent = parent;
+        this.hCost = calculateHeuristic();
+        findEmptyTile();
+    }
+
+    private void findEmptyTile() {
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                if (board[i][j] == 0) {
+                    emptyRow = i;
+                    emptyCol = j;
+                    return;
+                }
+            }
+        }
+    }
+
+    private int calculateHeuristic() {
+        int h = 0;
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                int value = board[i][j];
+                if (value != 0) {
+                    int targetRow = (value - 1) / board.length;
+                    int targetCol = (value - 1) % board[i].length;
+                    h += Math.abs(i - targetRow) + Math.abs(j - targetCol);
+                }
+            }
+        }
+        return h;
+    }
+
+    @Override
+    public int compareTo(PuzzleState other) {
+        return (this.gCost + this.hCost) - (other.gCost + other.hCost);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof PuzzleState))
+            return false;
+        PuzzleState other = (PuzzleState) obj;
+        return Arrays.deepEquals(this.board, other.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(board);
+    }
+
+    public List<PuzzleState> getSuccessors() {
+        List<PuzzleState> successors = new ArrayList<>();
+        int[][] directions = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
+        for (int[] direction : directions) {
+            int newRow = emptyRow + direction[0];
+            int newCol = emptyCol + direction[1];
+            if (newRow >= 0 && newRow < board.length && newCol >= 0 && newCol < board[0].length) {
+                int[][] newBoard = deepCopy(board);
+                newBoard[emptyRow][emptyCol] = newBoard[newRow][newCol];
+                newBoard[newRow][newCol] = 0;
+                successors.add(new PuzzleState(newBoard, gCost + 1, this));
+            }
+        }
+        return successors;
+    }
+
+    private int[][] deepCopy(int[][] original) {
+        if (original == null) {
+            return null;
+        }
+        int[][] result = new int[original.length][];
+        for (int i = 0; i < original.length; i++) {
+            result[i] = Arrays.copyOf(original[i], original[i].length);
+        }
+        return result;
+    }
+
+    public void printState() {
+        for (int[] row : board) {
+            System.out.println(Arrays.toString(row));
+        }
+        System.out.println();
+    }
+}
+
+public class EightPuzzleBestFirstSearch {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Enter the initial state (3x3 grid, use 0 for the empty tile):");
+        int[][] initialBoard = new int[3][3];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                initialBoard[i][j] = scanner.nextInt();
+            }
+        }
+
+        System.out.println("Enter the goal state (3x3 grid, use 0 for the empty tile):");
+        int[][] goalBoard = new int[3][3];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                goalBoard[i][j] = scanner.nextInt();
+            }
+        }
+
+        if (!isSolvable(initialBoard)) {
+            System.out.println("Not solvable");
+            return;
+        }
+
+        PuzzleState initialState = new PuzzleState(initialBoard, 0, null);
+        PuzzleState goalState = new PuzzleState(goalBoard, 0, null);
+
+        PriorityQueue<PuzzleState> openSet = new PriorityQueue<>();
+        Set<PuzzleState> closedSet = new HashSet<>();
+
+        openSet.add(initialState);
+
+        while (!openSet.isEmpty()) {
+            PuzzleState current = openSet.poll();
+
+            if (current.equals(goalState)) {
+                printSolutionPath(current);
+                return;
+            }
+
+            closedSet.add(current);
+
+            for (PuzzleState successor : current.getSuccessors()) {
+                if (!closedSet.contains(successor) && !openSet.contains(successor)) {
+                    openSet.add(successor);
+                }
+            }
+        }
+
+        System.out.println("No solution found.");
+    }
+
+    private static void printSolutionPath(PuzzleState state) {
+        if (state == null)
+            return;
+        printSolutionPath(state.parent);
+        state.printState();
+    }
+
+    private static boolean isSolvable(int[][] board) {
+        int[] oneDArray = new int[board.length * board.length];
+        int k = 0;
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                oneDArray[k++] = board[i][j];
+            }
+        }
+        int inversions = 0;
+        for (int i = 0; i < oneDArray.length; i++) {
+            if (oneDArray[i] == 0)
+                continue;
+            for (int j = i + 1; j < oneDArray.length; j++) {
+                if (oneDArray[j] == 0)
+                    continue;
+                if (oneDArray[i] > oneDArray[j])
+                    inversions++;
+            }
+        }
+        return inversions % 2 == 0;
+    }
+}
+
+
+
+
+
+
 
 //Eight Puzzle using A Star
 import java.util.ArrayList;
@@ -2250,3 +2438,4 @@ class NQueenBacktracking {
         solveNQ();
     }
 }
+
