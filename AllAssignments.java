@@ -270,6 +270,21 @@ public class TicTacToeAI {
 
 
 //TicTacToeNonAI
+Go(1) (Upper left corner).
+
+TURN 2: If Board[5] 2(blank), Go(5), else Go(1).
+
+TURN 3: If Board[9] =2(blank), Go(9), else Go(3),
+
+TURN 4: IF POSSWIN(X)0, then Go(POSSWIN(X)) [i.e. block opponent's win), else Go(Make2).
+
+TURN-5: If POSSWIN(X)=0, then Go(POSSWIN(X)) (i.e. win), else if POSSWIN(O)≠0, then Go(POSSWIN(O)) [i.e. black opponent's win], else if BOARD [7] =2(blank), Go(7), else Go(3). [Here, program is trying to make a fork.]
+
+TURN-6: IF POSSWIN(O)/0, then Go(POSSWIN(O)), else if POSSWIN(X)0, then Go(POSSWIN(X)), else Go(Make2). TURN=7: If POSSWIN(X)=0, then Go(POSSWIN(X)), else if POSSWIN(O)=0, then Go(POSSWIN(O)), else go anywhere that is blank.
+
+TURN-8: IF POSSWIN(O)20, then Go POSSWIN(O)), else if POSSWIN(X)20, then Go(POSSWIN(X)), else go anywhere that is blank.
+
+TURN-9: Same as TURN 7.
 #include <stdio.h>
 #include <conio.h>
 #include <stdlib.h>
